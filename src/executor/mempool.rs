@@ -1,12 +1,12 @@
 use std::collections::VecDeque;
 
+use super::ExecutorMempoolRx;
 use crate::{Error, Shutdown, Transaction, Transactions};
 use tokio::{
     select,
     sync::{broadcast, mpsc},
 };
 use tracing::info;
-use super::ExecutorMempoolRx;
 
 #[derive(Debug, Default)]
 pub enum MempoolOrdering {
@@ -47,7 +47,6 @@ impl Mempool {
     }
 
     pub async fn run(mut self) -> Result<(), Error> {
-
         info!("Mempool Initialized Successfuly");
 
         while !self.shutdown.is_shutdown() {

@@ -10,8 +10,6 @@ use tokio::signal::ctrl_c;
 use tokio::sync::{broadcast, mpsc, RwLock};
 use tracing::info;
 
-const BASE_PATH: &str = "~/.chain-bit";
-
 #[derive(Parser)]
 struct Cli {
     #[clap(subcommand)]
@@ -71,18 +69,6 @@ where
     let file = File::open(path)?;
     let reader = BufReader::new(file);
     serde_json::from_reader(reader).map_err(|e| e.into())
-}
-
-pub fn create_folders(special_path: Option<PathBuf>) -> Result<()> {
-    let path = if let Some(path) = special_path {
-        path
-    } else {
-        PathBuf::from(BASE_PATH)
-    };
-
-    std::fs::create_dir_all(path)?;
-
-    Ok(())
 }
 
 impl ServerArgs {

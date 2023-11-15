@@ -64,7 +64,6 @@ where
         interval.tick().await;
 
         while !self.shutdown.is_shutdown() {
-
             select! {
                 _ = interval.tick() => {}
                 _ = self.shutdown.recv() => {

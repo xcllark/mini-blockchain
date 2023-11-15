@@ -1,16 +1,15 @@
 mod connection;
 mod handler;
 mod message;
-mod black_list;
 
+use crate::executor::MempoolOrdering;
 pub use connection::Connection;
 pub use message::Message;
-use crate::executor::MempoolOrdering;
 
 use crate::{
     database::{DatabaseReader, DatabaseWriter},
     executor::Mempool,
-    server::{handler::Handler, black_list::BlackList},
+    server::handler::Handler,
     Error, Executor,
 };
 use alloy_primitives::Address;
@@ -28,7 +27,7 @@ use tracing::{error, info};
 pub struct Server<DB> {
     /// Port on where the server will listen
     port: u16,
-    /// Arc copy to the database, database can be any data structure that implementes 
+    /// Arc copy to the database, database can be any data structure that implementes
     /// [DatabaseReader] and [DatabaseWriter]
     db: Arc<RwLock<DB>>,
 
@@ -39,7 +38,7 @@ pub struct Server<DB> {
     coinbase: Address,
 
     /// Here we specify how often we want the [Executor] to create a new block
-    /// 
+    ///
     /// Ethereum: 12 Seconds
     /// Bitcoin: 10 Minutes
     block_time: u64,
@@ -88,9 +87,6 @@ where
         let (server_mempool_tx, server_mempool_rx) = mpsc::channel(1000);
         let (executor_mempool_tx, executor_mempool_rx) = unbounded_channel();
 
-
-        let /*mut*/ black_list = BlackList::default();
-
         let executor = Executor::new(
             self.db.clone(),
             self.block_time,
@@ -115,18 +111,13 @@ where
         info!("Rpc Server Initialized Successfuly");
 
         loop {
-            let (stream, ip_addr) = match server.accept().await {
+            let (stream, _) = match server.accept().await {
                 Ok(info) => info,
                 Err(e) => {
                     error!(err = %e, "Couldn't accept connection, skipping");
                     continue;
                 }
             };
-
-            if black_list.contains(&ip_addr) {
-                // In case the ip is on the blacklist we skipt the connection
-                continue;
-            }
 
             let connection = Connection::new(stream);
             let handler = Handler::new(self.db.clone(), connection, server_mempool_tx.clone());

@@ -20,7 +20,7 @@ pub struct Handler<DB> {
     /// TcpConnection wrapper
     connection: Connection,
 
-    /// Sender half of [mpsc] channel, that allows to send [Transaction] 
+    /// Sender half of [mpsc] channel, that allows to send [Transaction]
     /// to the mempool from each handler
     server_mempool_tx: mpsc::Sender<Transaction>,
 }

@@ -1,11 +1,11 @@
 use crate::server::Message;
 use crate::utils::*;
+use crate::Error;
 use crate::Transaction;
 use alloy_primitives::U256;
 use std::time::Duration;
 use tokio::net::TcpStream;
 use tokio::signal::ctrl_c;
-use crate::Error;
 
 #[allow(unreachable_code)]
 pub async fn run_loop() -> Result<(), Error> {
