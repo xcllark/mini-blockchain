@@ -51,7 +51,7 @@ pub async fn run_loop() -> Result<(), Error> {
     Ok(())
 }
 
-pub async fn run(nonce: u64) -> Result<(), Error> {
+pub async fn run() -> Result<(), Error> {
     let pk = U256::from(1);
     let pk = u256_to_signing_key(&pk).unwrap();
 
@@ -60,7 +60,7 @@ pub async fn run(nonce: u64) -> Result<(), Error> {
     let addr = addr(&pk);
     tx.from = addr;
     tx.value = 100;
-    tx.nonce = nonce;
+    tx.nonce = 0;
 
     tx.hash = tx.hash();
 
@@ -84,8 +84,3 @@ pub async fn run(nonce: u64) -> Result<(), Error> {
     Ok(())
 }
 
-pub async fn run_two() -> Result<(), Error> {
-    run(1).await?;
-    run(0).await?;
-    Ok(())
-}

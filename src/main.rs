@@ -1,6 +1,6 @@
 use alloy_primitives::Address;
 use anyhow::Result;
-use chain_bit::{ChainSpec, DatabaseWriter, Error, InMemoryDB, Reporter, Server};
+use mini_blockchain::{ChainSpec, DatabaseWriter, Error, InMemoryDB, Reporter, Server};
 use clap::{Args, Parser, Subcommand};
 use serde::de::DeserializeOwned;
 use std::fs::File;
@@ -18,9 +18,19 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Runs the server and listens to new transactions
     Server(ServerArgs),
-    Client,
+    /// Runs the client and tries to connect to the server and send it transactions
+    Client(ClientArgs),
 }
+
+#[derive(Args)]
+struct ClientArgs {
+    /// Whether to just send one transaction to the client or many from many different clients
+    #[clap(short, long)]
+    many: bool,
+}
+
 
 #[derive(Args)]
 struct ServerArgs {
@@ -153,8 +163,12 @@ async fn main() -> Result<()> {
             server.run().await?;
         }
 
-        Commands::Client => {
-            chain_bit::client::run_loop().await?;
+        Commands::Client(client) => {
+            if client.many {
+                mini_blockchain::client::run_loop().await?;
+            } else {
+                mini_blockchain::client::run().await?;
+            }
         }
     }
 
